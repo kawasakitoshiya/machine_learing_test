@@ -3,7 +3,7 @@ from sklearn import linear_model
 
 
 def main():
-    train = pd.read_csv('titanic/train.csv')
+    train = pd.read_csv('data/train.csv')
 
     train.Age = train.Age.fillna(train.Age.mean())
     sex_dict = {

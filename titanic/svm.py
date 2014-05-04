@@ -8,7 +8,7 @@ from sklearn.svm import LinearSVC
 
 
 def main():
-    train = pd.read_csv('titanic/train.csv')
+    train = pd.read_csv('data/train.csv')
     train.Age = train.Age.fillna(train.Age.mean())
     le_sex = preprocessing.LabelEncoder()
     train.Sex = le_sex.fit_transform(train.Sex)
