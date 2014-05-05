@@ -2,25 +2,40 @@ import pandas as pd
 import numpy as np
 import Image
 from sklearn import linear_model
+import sys
+
+
+def detect(mean_patch, img):
+    min = (0, 0, sys.maxint)  # x, y, diff
+    for col in xrange(10, 86):
+        for row in xrange(10, 86):
+            print col, row
+            roi = img[row - 10:row + 10, col - 10: col + 10]
+            diff_m = mean_patch - roi
+            diff = np.sum(np.power(diff_m, 2))
+            if diff < min[2]:
+                min = (col, row, diff)
+    return min[0], min[1]
 
 
 def main():
     """
-    training.csv has feature points and image data
-    test.csv has ImageId and image data
+    training.csv has feature points and Image
+    test.csv has ImageId and image Image
 
     this task is predicting feature point of test data
     in the format of SampleSubmission.csv (RowId, Location)
     the targets are shown ind
           IdLookupTable.csv (RowId, ImageId, FeatureName, Location)
     """
-    #train = pd.read_csv('data/training.csv')
+#    train = pd.read_csv('data/training.csv')
     train = pd.read_csv('data/train_3.csv')
-    imgs = []
+    train_imgs = []
     # convert image digits
 
     lec = []
     for i, img_str in enumerate(train.Image):
+        print 'preproceccing data:', i
         # eye_center
         left_eye_center = (train.left_eye_center_x[i], train.left_eye_center_y[i])
         lec.append(left_eye_center)
@@ -59,32 +74,47 @@ def main():
         tmp = [int(e) for e in img_str.split()]
         tmp2 = np.matrix(tmp)
         tmp3 = tmp2.reshape((96, 96))
-        imgs.append(tmp3)
+        train_imgs.append(tmp3)
         # pilImg = Image.fromarray(np.uint8(tmp3))
         # pilImg.show()
 
-    # array[row_s:row_e, col_s:col_e]
+    test_dic = {}
+    # test = pd.read_csv('data/test.csv')
+    test = pd.read_csv('data/test_3.csv')
+    for img_str, im_id in zip(test.Image, test.ImageId):
+        print im_id
+        tmp = [int(e) for e in img_str.split()]
+        tmp2 = np.matrix(tmp)
+        tmp3 = tmp2.reshape((96, 96))
+        test_dic[im_id] = tmp3
 
+    # array[row_s:row_e, col_s:col_e]
     im_lec = []
-    sum_matrix = np.zeros((20, 20))
-    for i, img in enumerate(imgs):
-        p = lec[i]
-        roi = img[p[1] - 10:p[1] + 10, p[0] - 10: p[0] + 10]
-        sum_matrix += roi
-        print roi
-        im_lec.append(roi)
+    s_lec_mat = np.zeros((20, 20))
+    for i, img in enumerate(train_imgs):
+        print 'left_eye:', i
+        try:
+            p = lec[i]
+            roi = img[p[1] - 10:p[1] + 10, p[0] - 10: p[0] + 10]
+            s_lec_mat += roi
+            im_lec.append(roi)
+        except Exception as e:
+            print e
         #        print im_lec
 
-    lec_matrix_m = sum_matrix / len(train)
-    pilImg = Image.fromarray(np.uint8(lec_matrix_m))
+    m_lec_mat = s_lec_mat / len(train)
+
+    img = test_dic[1]
+    (x, y) = detect(m_lec_mat, img)
+    print x, y
+    pilImg = Image.fromarray(np.uint8(test_dic[1]))
     pilImg.show()
     return
-
 
     row_ids = []
     locations = []
 
-    test = pd.read_csv('data/IdLookupTable.csv')
+
     for row_id, row_featurename in zip(test.RowId, test.FeatureName):
         row_ids.append(row_id)
         locations.append(np.asscalar(train[row_featurename].mean()))
