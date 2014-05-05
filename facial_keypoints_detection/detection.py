@@ -9,7 +9,6 @@ def detect(mean_patch, img):
     min = (0, 0, sys.maxint)  # x, y, diff
     for col in xrange(10, 86):
         for row in xrange(10, 86):
-            print col, row
             roi = img[row - 10:row + 10, col - 10: col + 10]
             diff_m = mean_patch - roi
             diff = np.sum(np.power(diff_m, 2))
@@ -33,43 +32,75 @@ def main():
     train_imgs = []
     # convert image digits
 
-    lec = []
+    lecs = []
+    recs = []
+
+    leis = []
+    reis = []
+
+    leos = []
+    reos = []
+
+    lebis = []
+    rebis = []
+
+    lebos = []
+    rebos = []
+
+    nts = []
+
+    mls = []
+    mrs = []
+    mts = []
+    mbs = []
+
     for i, img_str in enumerate(train.Image):
         print 'preproceccing data:', i
         # eye_center
-        left_eye_center = (train.left_eye_center_x[i], train.left_eye_center_y[i])
-        lec.append(left_eye_center)
-        right_eye_center = (train.right_eye_center_x[i], train.right_eye_center_y[i])
-
+        lec = (train.left_eye_center_x[i], train.left_eye_center_y[i])
+        lecs.append(lec)
+        rec = (train.right_eye_center_x[i], train.right_eye_center_y[i])
+        recs.append(rec)
 
         # eye_inner
-        left_eye_inner_corner = (train.left_eye_inner_corner_x[i], train.left_eye_inner_corner_y[i])
-        right_eye_inner_corner = (train.right_eye_inner_corner_x[i], train.right_eye_inner_corner_y[i])
+        lei = (train.left_eye_inner_corner_x[i], train.left_eye_inner_corner_y[i])
+        leis.append(lei)
+        rei = (train.right_eye_inner_corner_x[i], train.right_eye_inner_corner_y[i])
+        reis.append(rei)
 
         # eye_outer
-        left_eye_outer_corner = (train.left_eye_outer_corner_x[i], train.left_eye_outer_corner_y[i])
-        right_eye_outer_corner = (train.right_eye_outer_corner_x[i], train.right_eye_outer_corner_y[i])
-
+        leo = (train.left_eye_outer_corner_x[i], train.left_eye_outer_corner_y[i])
+        leos.append(leo)
+        reo = (train.right_eye_outer_corner_x[i], train.right_eye_outer_corner_y[i])
+        reos.append(reo)
 
         # eyebrow_inner
-        left_eyebrow_inner_end = (train.left_eyebrow_inner_end_x[i], train.left_eyebrow_inner_end_y[i])
-        right_eyebrow_inner_end = (train.right_eyebrow_inner_end_x[i], train.right_eyebrow_inner_end_y[i])
-
+        lebi = (train.left_eyebrow_inner_end_x[i], train.left_eyebrow_inner_end_y[i])
+        lebis.append(lebi)
+        rebi = (train.right_eyebrow_inner_end_x[i], train.right_eyebrow_inner_end_y[i])
+        rebis.append(rebi)
 
         # eyebrow_outer
-        left_eyebrow_outer_end = (train.left_eyebrow_outer_end_x[i], train.left_eyebrow_outer_end_y[i])
-        right_eyebrow_outer_end = (train.right_eyebrow_outer_end_x[i], train.right_eyebrow_outer_end_y[i])
+        lebo = (train.left_eyebrow_outer_end_x[i], train.left_eyebrow_outer_end_y[i])
+        lebos.append(lebo)
+        rebo = (train.right_eyebrow_outer_end_x[i], train.right_eyebrow_outer_end_y[i])
+        rebos.append(rebo)
 
         # nose_tip
-        nose_tip = (train.nose_tip_x[i], train.nose_tip_y[i])
+        nt = (train.nose_tip_x[i], train.nose_tip_y[i])
+        nts.append(nt)
 
         # mouth_corner
-        mouth_left_corner = (train.mouth_left_corner_x[i], train.mouth_left_corner_y[i])
-        mouth_right_corner = (train.mouth_right_corner_x[i], train.mouth_right_corner_y[i])
+        ml = (train.mouth_left_corner_x[i], train.mouth_left_corner_y[i])
+        mls.append(ml)
+        mr = (train.mouth_right_corner_x[i], train.mouth_right_corner_y[i])
+        mrs.append(mr)
 
         # mouth_center
-        mouth_center_top_lip = (train.mouth_center_top_lip_x[i], train.mouth_center_top_lip_y[i])
-        mouth_center_bottom_lip = (train.mouth_center_bottom_lip_x[i], train.mouth_center_bottom_lip_y[i])
+        mt = (train.mouth_center_top_lip_x[i], train.mouth_center_top_lip_y[i])
+        mts.append(mt)
+        mb = (train.mouth_center_bottom_lip_x[i], train.mouth_center_bottom_lip_y[i])
+        mbs.append(mb)
 
         tmp = [int(e) for e in img_str.split()]
         tmp2 = np.matrix(tmp)
@@ -79,7 +110,7 @@ def main():
         # pilImg.show()
 
     test_dic = {}
-    # test = pd.read_csv('data/test.csv')
+#    test = pd.read_csv('data/test.csv')
     test = pd.read_csv('data/test_3.csv')
     for img_str, im_id in zip(test.Image, test.ImageId):
         print im_id
@@ -89,25 +120,42 @@ def main():
         test_dic[im_id] = tmp3
 
     # array[row_s:row_e, col_s:col_e]
-    im_lec = []
-    s_lec_mat = np.zeros((20, 20))
-    for i, img in enumerate(train_imgs):
-        print 'left_eye:', i
-        try:
-            p = lec[i]
-            roi = img[p[1] - 10:p[1] + 10, p[0] - 10: p[0] + 10]
-            s_lec_mat += roi
-            im_lec.append(roi)
-        except Exception as e:
-            print e
-        #        print im_lec
 
-    m_lec_mat = s_lec_mat / len(train)
+    ims = []
+    points_list = [lecs, recs, leis, reis, leos, reos, lebis, rebis, lebos, rebos, nts, mls, mrs, mts, mbs]
+#    points_list = [lecs]
+    roi_mat_list = []
+    for i_p, points in enumerate(points_list):
+        sum_mat = np.zeros((20, 20))
+        success_img_cnts = 0
+        for i, img in enumerate(train_imgs):
+            try:
+                p = points[i]
+                roi = img[p[1] - 10:p[1] + 10, p[0] - 10: p[0] + 10]
+                sum_mat += roi
+                success_img_cnts += 1
+            except Exception as e:
+                pass
+                #print e
+
+        roi_mat = sum_mat / success_img_cnts
+        roi_mat_list.append(roi_mat)
+        pilImg = Image.fromarray(np.uint8(roi_mat))
+        pilImg.show()
+
 
     img = test_dic[1]
-    (x, y) = detect(m_lec_mat, img)
-    print x, y
+    print '--'
+    import ImageDraw
     pilImg = Image.fromarray(np.uint8(test_dic[1]))
+    draw = ImageDraw.Draw(pilImg)
+    for i in xrange(len(points_list)):
+        (x, y) = detect(roi_mat_list[i], img)
+        l = (x, y)
+        r = (x + 1, y + 1)
+        draw.rectangle((l, r), outline='#ff0000', fill='#ff0000')
+        print x, y
+
     pilImg.show()
     return
 
